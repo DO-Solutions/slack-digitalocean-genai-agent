@@ -6,6 +6,7 @@ from ..ai_constants import DEFAULT_SYSTEM_CONTENT
 from .anthropic import AnthropicAPI
 from .openai import OpenAI_API
 from .vertexai import VertexAPI
+from .genai import GenAI_API
 
 """
 New AI providers must be added below.
@@ -28,6 +29,7 @@ def get_available_providers():
         **AnthropicAPI().get_models(),
         **OpenAI_API().get_models(),
         **VertexAPI().get_models(),
+        **GenAI_API().get_models(),
     }
 
 
@@ -38,6 +40,8 @@ def _get_provider(provider_name: str):
         return OpenAI_API()
     elif provider_name.lower() == "vertexai":
         return VertexAPI()
+    elif provider_name.lower() == "genai":
+        return GenAI_API()
     else:
         raise ValueError(f"Unknown provider: {provider_name}")
 
