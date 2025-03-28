@@ -10,10 +10,6 @@ logger = logging.getLogger(__name__)
 class GenAI_API(BaseAPIProvider):
     MODELS = {
         "droplet-agent": {"name": "Droplet Agent", "provider": "GenAI", "max_tokens": 4096},
-        "claude-3-sonnet-20240229": {"name": "Claude 3 Sonnet", "provider": "GenAI", "max_tokens": 4096},
-        "claude-3-haiku-20240307": {"name": "Claude 3 Haiku", "provider": "GenAI", "max_tokens": 4096},
-        "gpt-4-turbo": {"name": "GPT-4 Turbo", "provider": "GenAI", "max_tokens": 4096},
-        "gpt-4o": {"name": "GPT-4o", "provider": "GenAI", "max_tokens": 4096},
     }
 
     def __init__(self):
