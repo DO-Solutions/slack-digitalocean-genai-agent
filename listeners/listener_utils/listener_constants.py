@@ -11,4 +11,4 @@ A user has just joined this Slack channel.
 Please create a quick summary of the conversation in this channel to help them catch up.
 Don't use user IDs or names in your response.
 """
-DEFAULT_LOADING_TEXT = "Thinking..."
+DEFAULT_LOADING_TEXT = "Adjusting the sails..."
