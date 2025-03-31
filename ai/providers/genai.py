@@ -9,12 +9,12 @@ logger = logging.getLogger(__name__)
 
 class GenAI_API(BaseAPIProvider):
     MODELS = {
-        "droplet-agent": {"name": "Droplet Agent", "provider": "GenAI", "max_tokens": 4096},
+        "genai-agent": {"name": "GenAI Agent", "provider": "GenAI", "max_tokens": 2048},
     }
 
     def __init__(self):
         self.api_key = os.environ.get("GENAI_API_KEY")
-        self.base_url = os.environ.get("GENAI_API_URL", "https://api.genai.example.com/v1")
+        self.base_url = os.environ.get("GENAI_API_URL")
 
     def set_model(self, model_name: str):
         if model_name not in self.MODELS.keys():
