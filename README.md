@@ -8,11 +8,13 @@ This Slack chatbot app template offers a customizable solution for integrating A
 * Utilize a custom function for integration with Workflow Builder to summarize messages in conversations
 * Select your preferred API/model from the app home to customize the bot's responses
 * Bring Your Own Language Model [BYO LLM](#byo-llm) for customization
-* Custom FileStateStore creates a file in /data per user to store API/model preferences
+* Choice of state storage:
+  * File-based state store creates a file in /data per user to store API/model preferences
+  * Redis state store for distributed deployments with environment variable configuration
 
 Inspired by [ChatGPT-in-Slack](https://github.com/seratch/ChatGPT-in-Slack/tree/main)
 
-Before getting started, make sure you have a development workspace where you have permissions to install apps. If you don’t have one setup, go ahead and [create one](https://slack.com/create).
+Before getting started, make sure you have a development workspace where you have permissions to install apps. If you don't have one setup, go ahead and [create one](https://slack.com/create).
 ## Installation
 
 #### Prerequisites
@@ -136,13 +138,19 @@ This file contains utility functions for handling responses from the provider AP
 
 * `user_identity.py`: This file defines the UserIdentity class for creating user objects. Each object represents a user with the user_id, provider, and model attributes.
 
-* `user_state_store.py`: This file defines the base class for FileStateStore.
+* `user_state_store.py`: This file defines the base UserStateStore interface for implementing different storage backends.
+
+#### File-based State Storage
 
 * `file_state_store.py`: This file defines the FileStateStore class which handles the logic for creating and managing files for each user.
-
 * `set_user_state.py`: This file creates a user object and uses a FileStateStore to save the user's selected provider to a JSON file.
+* `get_user_state.py`: This file retrieves a user's selected provider from the JSON file created with `set_user_state.py`.
 
-* `get_user_state.py`: This file retrieves a users selected provider from the JSON file created with `set_user_state.py`.
+#### Redis State Storage
+
+* `redis_state_store.py`: This file defines the RedisStateStore class which handles the logic for storing user state in Redis.
+* `set_redis_user_state.py`: This file creates a user object and uses a RedisStateStore to save the user's selected provider to Redis.
+* `get_redis_user_state.py`: This file retrieves a user's selected provider from Redis.
 
 ## App Distribution / OAuth
 
@@ -166,4 +174,17 @@ Navigate to **OAuth & Permissions** in your app configuration and click **Add a 
 
 ```
 https://3cb89939.ngrok.io/slack/oauth_redirect
+```
+
+##### Redis Setup (Optional)
+
+To use Redis for state storage instead of the file-based approach, set the following environment variable:
+
+```zsh
+export REDIS_URL=<your-redis-connection-string>
+```
+
+For example, with a Redis service on DigitalOcean:
+```
+export REDIS_URL=rediss://default:password@hostname.db.ondigitalocean.com:25061
 ```

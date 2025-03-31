@@ -1,6 +1,7 @@
 from typing import List, Optional
+import sys
 
-from state_store.get_user_state import get_user_state
+from state_store.get_redis_user_state import get_redis_user_state
 
 from ..ai_constants import DEFAULT_SYSTEM_CONTENT
 from .anthropic import AnthropicAPI
@@ -49,11 +50,25 @@ def _get_provider(provider_name: str):
 def get_provider_response(user_id: str, prompt: str, context: Optional[List] = [], system_content=DEFAULT_SYSTEM_CONTENT):
     formatted_context = "\n".join([f"{msg['user']}: {msg['text']}" for msg in context])
     full_prompt = f"Prompt: {prompt}\nContext: {formatted_context}"
+    print(f"🤖 Getting AI response for user: {user_id}")
+    
     try:
-        provider_name, model_name = get_user_state(user_id, False)
+        provider_name, model_name = get_redis_user_state(user_id, False)
+        
+        if not provider_name or not model_name:
+            print(f"❌ No provider/model selection found for user: {user_id}")
+            raise ValueError("No provider selection found. Please navigate to the App Home and make a selection.")
+        
+        print(f"🔧 Using provider: {provider_name}, model: {model_name}")
         provider = _get_provider(provider_name)
         provider.set_model(model_name)
+        
+        print(f"📝 Generating response with {len(context)} context messages")
         response = provider.generate_response(full_prompt, system_content)
+        
+        print(f"✅ Successfully generated response for user: {user_id}")
         return response
     except Exception as e:
+        error_msg = f"❌ Error generating AI response: {e}"
+        print(error_msg, file=sys.stderr)
         raise e

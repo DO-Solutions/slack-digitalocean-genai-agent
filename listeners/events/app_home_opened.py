@@ -1,7 +1,8 @@
 from logging import Logger
 from ai.providers import get_available_providers
 from slack_sdk import WebClient
-from state_store.get_user_state import get_user_state
+from state_store.get_redis_user_state import get_redis_user_state
+import sys
 
 """
 Callback for handling the 'app_home_opened' event. It checks if the event is for the 'home' tab,
@@ -14,6 +15,9 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
     if event["tab"] != "home":
         return
 
+    user_id = event["user"]
+    print(f"🏠 App Home opened by user: {user_id}")
+
     # create a list of options for the dropdown menu each containing the model name and provider
     options = [
         {
@@ -24,14 +28,17 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
     ]
 
     # retrieve user's state to determine if they already have a selected model
-    user_state = get_user_state(event["user"], True)
+    provider, model = get_redis_user_state(user_id, True)
     initial_option = None
 
-    if user_state:
-        initial_model = get_user_state(event["user"], True)[1]
+    if provider and model:
+        print(f"📋 Retrieved user state from Redis - User: {user_id}, Provider: {provider}, Model: {model}")
         # set the initial option to the user's previously selected model
-        initial_option = list(filter(lambda x: x["value"].startswith(initial_model), options))
+        initial_option = list(filter(lambda x: x["value"].startswith(model), options))
+        if not initial_option:
+            print(f"⚠️ No matching option found for model '{model}', using default")
     else:
+        print(f"ℹ️ No provider selection found for user: {user_id}")
         # add an empty option if the user has no previously selected model.
         options.append(
             {
@@ -42,13 +49,13 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
 
     try:
         client.views_publish(
-            user_id=event["user"],
+            user_id=user_id,
             view={
                 "type": "home",
                 "blocks": [
                     {
                         "type": "header",
-                        "text": {"type": "plain_text", "text": "Welcome to Bolty's Home Page!", "emoji": True},
+                        "text": {"type": "plain_text", "text": "Welcome to Sailor Home Page!", "emoji": True},
                     },
                     {"type": "divider"},
                     {
@@ -74,5 +81,7 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
                 ],
             },
         )
+        print(f"✅ Successfully published home view for user: {user_id}")
     except Exception as e:
+        print(f"❌ Error publishing home view: {e}", file=sys.stderr)
         logger.error(e)
