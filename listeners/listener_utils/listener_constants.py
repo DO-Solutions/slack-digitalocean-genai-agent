@@ -11,4 +11,9 @@ A user has just joined this Slack channel.
 Please create a quick summary of the conversation in this channel to help them catch up.
 Don't use user IDs or names in your response.
 """
+SUMMARIZE_THREAD_PROMPT = """
+Please summarize this thread conversation to highlight the key points and conclusions.
+Keep the summary concise and focused on the important information.
+Don't use user IDs in your response.
+"""
 DEFAULT_LOADING_TEXT = "Adjusting the sails..."
