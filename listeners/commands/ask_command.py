@@ -4,7 +4,7 @@ from ai.providers import get_provider_response
 from slack_sdk import WebClient
 
 """
-Callback for handling the 'ask-bolty' command. It acknowledges the command, retrieves the user's ID and prompt,
+Callback for handling the 'ask-sailor' command. It acknowledges the command, retrieves the user's ID and prompt,
 checks if the prompt is empty, and responds with either an error message or the provider's response.
 """
 
