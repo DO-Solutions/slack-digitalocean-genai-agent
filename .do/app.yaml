@@ -1,0 +1,49 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+databases:
+- cluster_name: slack-bot-cache
+  engine: REDIS
+  name: slack-bot-cache
+  production: true
+  version: "7"
+features:
+- buildpack-stack=ubuntu-22
+ingress: {}
+maintenance: {}
+name: slack-app
+region: lon
+workers:
+- environment_slug: python
+  envs:
+  - key: SLACK_BOT_TOKEN
+    scope: RUN_TIME
+    type: SECRET
+    value: 
+  - key: SLACK_APP_TOKEN
+    scope: RUN_TIME
+    type: SECRET
+    value: 
+  - key: OPENAI_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+    value: 
+  - key: GENAI_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: 
+  - key: GENAI_API_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://agent-id.ondigitalocean.app/api/v1
+  - key: REDIS_URL
+    scope: RUN_TIME
+    value: ${slack-bot-cache.REDIS_URL}
+  github:
+    branch: redis
+    deploy_on_push: true
+    repo: do-solutions/slack-digitaocean-genai-agent
+  instance_count: 2
+  instance_size_slug: apps-d-1vcpu-2gb
+  name: slack-bot
+  run_command: python app.py
+  source_dir: /
