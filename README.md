@@ -20,6 +20,7 @@ Before getting started, make sure you have a development workspace where you hav
 #### Prerequisites
 * To use the OpenAI and Anthropic models, you must have an account with sufficient credits.
 * To use the Vertex models, you must have [a Google Cloud Provider project](https://cloud.google.com/vertex-ai/generative-ai/docs/start/quickstarts/quickstart-multimodal#expandable-1) with sufficient credits.
+* To use the GenAI models, you must have access to the [DigitalOcean GenAI Platform](https://docs.digitalocean.com/products/genai-platform/).
 
 #### Create a Slack App
 1. Open [https://api.slack.com/apps/new](https://api.slack.com/apps/new) and choose "From an app manifest"
@@ -79,6 +80,15 @@ Unlock the OpenAI models from your OpenAI account dashboard by clicking [create 
 export OPENAI_API_KEY=<your-api-key>
 ```
 
+##### GenAI Setup
+
+To use the custom GenAI platform with OpenAI-compatible API, export the following environment variables:
+
+```zsh
+export GENAI_API_KEY=<your-genai-api-key>
+export GENAI_API_URL=<your-genai-api-url>  # Optional, set to public: https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/#set-availability. Example: https://agent-<id>.ondigitalocean.app/api/v1
+```
+
 ### Setup Your Local Project
 ```zsh
 # Clone this project onto your machine
@@ -129,7 +139,7 @@ Every incoming request is routed to a "listener". Inside this directory, we grou
 
 <a name="byo-llm"></a>
 #### `ai/providers`
-This module contains classes for communicating with different API providers, such as [Anthropic](https://www.anthropic.com/), [OpenAI](https://openai.com/), and [Vertex AI](cloud.google.com/vertex-ai). To add your own LLM, create a new class for it using the `base_api.py` as an example, then update `ai/providers/__init__.py` to include and utilize your new class for API communication.
+This module contains classes for communicating with different API providers, such as [Anthropic](https://www.anthropic.com/), [OpenAI](https://openai.com/), [Vertex AI](cloud.google.com/vertex-ai), and GenAI (custom OpenAI-compatible API). To add your own LLM, create a new class for it using the `base_api.py` as an example, then update `ai/providers/__init__.py` to include and utilize your new class for API communication.
 
 * `__init__.py`: 
 This file contains utility functions for handling responses from the provider APIs and retrieving available providers.
