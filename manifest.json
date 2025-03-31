@@ -19,6 +19,11 @@
                 "command": "/ask-sailor",
                 "description": "Interact with Sailor.",
                 "should_escape": false
+            },
+            {
+                "command": "/sailor-summary",
+                "description": "Summarize the current thread using AI.",
+                "should_escape": false
             }
         ]
     },
