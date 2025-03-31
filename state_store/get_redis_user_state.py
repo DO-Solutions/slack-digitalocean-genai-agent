@@ -6,7 +6,15 @@ logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 
-def get_redis_user_state(user_id: str, is_app_home: bool, redis_url: str = "redis://localhost:6379/0"):
+def get_redis_user_state(user_id: str, is_app_home: bool, redis_url: str = None):
+    """
+    Get user state from Redis
+    
+    Args:
+        user_id: The user ID
+        is_app_home: Whether the request is from app home
+        redis_url: Optional Redis URL. If not provided, uses REDIS_URL env variable
+    """
     redis_store = RedisStateStore(redis_url=redis_url)
     user_data = redis_store.get_state(user_id)
     
