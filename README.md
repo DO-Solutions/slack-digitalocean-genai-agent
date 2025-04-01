@@ -86,7 +86,7 @@ To use the custom GenAI platform with OpenAI-compatible API, export the followin
 
 ```zsh
 export GENAI_API_KEY=<your-genai-api-key>
-export GENAI_API_URL=<your-genai-api-url>  # Optional, set to public: https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/#set-availability. Example: https://agent-<id>.ondigitalocean.app/api/v1
+export GENAI_API_URL=<your-genai-api-url>  # Optional, can be private: https://docs.digitalocean.com/products/genai-platform/how-to/manage-ai-agent/use-agent/#set-availability. Example: https://agent-<id>.ondigitalocean.app/api/v1
 ```
 
 ### Setup Your Local Project
