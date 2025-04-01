@@ -2,7 +2,9 @@ from logging import Logger
 from ai.providers import get_available_providers
 from slack_sdk import WebClient
 from state_store.get_redis_user_state import get_redis_user_state
+from state_store.set_redis_user_state import set_redis_user_state
 import sys
+import os
 
 """
 Callback for handling the 'app_home_opened' event. It checks if the event is for the 'home' tab,
@@ -39,13 +41,27 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
             print(f"⚠️ No matching option found for model '{model}', using default")
     else:
         print(f"ℹ️ No provider selection found for user: {user_id}")
-        # add an empty option if the user has no previously selected model.
-        options.append(
-            {
-                "text": {"type": "plain_text", "text": "Select a provider", "emoji": True},
-                "value": "null",
-            }
-        )
+        # Check if GENAI_API_URL is set and genai-agent is available
+        genai_api_url = os.environ.get("GENAI_API_URL")
+        if genai_api_url and any(opt["value"].startswith("genai-agent") for opt in options):
+            print(f"🔄 Using genai-agent as default model for user: {user_id}")
+            initial_option = list(filter(lambda x: x["value"].startswith("genai-agent"), options))
+            if initial_option:
+                # Save the default selection to Redis
+                try:
+                    set_redis_user_state(user_id, "genai", "genai-agent")
+                    print(f"✅ Saved default GenAI selection to Redis for user: {user_id}")
+                except Exception as e:
+                    print(f"❌ Error saving default GenAI selection: {e}", file=sys.stderr)
+                    logger.error(f"Error saving default GenAI selection: {e}")
+        else:
+            # add an empty option if the user has no previously selected model.
+            options.append(
+                {
+                    "text": {"type": "plain_text", "text": "Select a provider", "emoji": True},
+                    "value": "null",
+                }
+            )
 
     try:
         client.views_publish(
