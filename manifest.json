@@ -22,7 +22,7 @@
             },
             {
                 "command": "/sailor-summary",
-                "description": "Summarize the current thread using AI.",
+                "description": "Summarize a Slack thread by providing a thread link.",
                 "should_escape": false
             }
         ]
