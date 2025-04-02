@@ -47,9 +47,16 @@ def _get_provider(provider_name: str):
         raise ValueError(f"Unknown provider: {provider_name}")
 
 
+def _estimate_token_count(text: str) -> int:
+    """Roughly estimate token count based on words (very approximate)"""
+    # A very rough approximation: 1 token ≈ 0.75 words
+    return int(len(text.split()) / 0.75)
+
+
 def get_provider_response(user_id: str, prompt: str, context: Optional[List] = [], system_content=DEFAULT_SYSTEM_CONTENT):
     formatted_context = "\n".join([f"{msg['user']}: {msg['text']}" for msg in context])
     full_prompt = f"Prompt: {prompt}\nContext: {formatted_context}"
+    context_token_count = _estimate_token_count(full_prompt)
     print(f"🤖 Getting AI response for user: {user_id}")
     
     try:
@@ -63,10 +70,11 @@ def get_provider_response(user_id: str, prompt: str, context: Optional[List] = [
         provider = _get_provider(provider_name)
         provider.set_model(model_name)
         
-        print(f"📝 Generating response with {len(context)} context messages")
+        print(f"📝 Generating response with {len(context)} context messages (approx. {context_token_count} tokens)")
         response = provider.generate_response(full_prompt, system_content)
         
-        print(f"✅ Successfully generated response for user: {user_id}")
+        response_token_count = _estimate_token_count(response)
+        print(f"✅ Successfully generated response for user: {user_id} (approx. {response_token_count} tokens)")
         return response
     except Exception as e:
         error_msg = f"❌ Error generating AI response: {e}"
