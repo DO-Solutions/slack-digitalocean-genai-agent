@@ -29,9 +29,19 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
         for model_name, model_info in get_available_providers().items()
     ]
 
-    # retrieve user's state to determine if they already have a selected model
-    provider, model = get_redis_user_state(user_id, True)
+    provider = None
+    model = None
     initial_option = None
+    
+    # Check if Redis is available
+    redis_url = os.environ.get("REDIS_URL")
+    if redis_url:
+        try:
+            # retrieve user's state to determine if they already have a selected model
+            provider, model = get_redis_user_state(user_id, True, redis_url)
+        except Exception as e:
+            print(f"⚠️ Failed to get user state from Redis: {e}")
+            # Fall through to default handling
 
     if provider and model:
         print(f"📋 Retrieved user state from Redis - User: {user_id}, Provider: {provider}, Model: {model}")
@@ -46,16 +56,27 @@ def app_home_opened_callback(event: dict, logger: Logger, client: WebClient):
         if genai_api_url and any(opt["value"].startswith("genai-agent") for opt in options):
             print(f"🔄 Using genai-agent as default model for user: {user_id}")
             initial_option = list(filter(lambda x: x["value"].startswith("genai-agent"), options))
-            if initial_option:
-                # Save the default selection to Redis
+            if initial_option and redis_url:
+                # Save the default selection to Redis (only if Redis is available)
                 try:
-                    set_redis_user_state(user_id, "genai", "genai-agent")
+                    set_redis_user_state(user_id, "genai", "genai-agent", redis_url)
                     print(f"✅ Saved default GenAI selection to Redis for user: {user_id}")
                 except Exception as e:
                     print(f"❌ Error saving default GenAI selection: {e}", file=sys.stderr)
                     logger.error(f"Error saving default GenAI selection: {e}")
+    
+    # If no option was selected, add a default "Select a provider" option
+    if not initial_option:
+        # Show a message that GenAI will be used as fallback if available
+        genai_api_url = os.environ.get("GENAI_API_URL")
+        if genai_api_url and any(opt["value"].startswith("genai-agent") for opt in options):
+            options.append(
+                {
+                    "text": {"type": "plain_text", "text": "Select a provider (GenAI used as fallback)", "emoji": True},
+                    "value": "null",
+                }
+            )
         else:
-            # add an empty option if the user has no previously selected model.
             options.append(
                 {
                     "text": {"type": "plain_text", "text": "Select a provider", "emoji": True},

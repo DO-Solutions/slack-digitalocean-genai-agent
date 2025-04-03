@@ -24,6 +24,13 @@ def get_redis_user_state(user_id: str, is_app_home: bool, redis_url: str = None)
     """
     print(f"🔍 Fetching Redis state for user: {user_id}")
     
+    # Check if Redis URL is provided or available in environment variables
+    if not redis_url:
+        redis_url = os.environ.get("REDIS_URL")
+        if not redis_url:
+            print(f"ℹ️ REDIS_URL not found in environment, Redis storage disabled")
+            return None, None
+    
     try:
         redis_store = RedisStateStore(redis_url=redis_url)
         user_data = redis_store.get_state(user_id)
@@ -45,8 +52,8 @@ def get_redis_user_state(user_id: str, is_app_home: bool, redis_url: str = None)
             
             # If GENAI_API_URL not set or error saving default
             if not is_app_home:
-                print(f"❌ No provider selection found for user: {user_id} (non-app-home context)")
-                raise FileNotFoundError("No provider selection found. Please navigate to the App Home and make a selection.")
+                print(f"ℹ️ No provider selection found for user: {user_id}, using GenAI fallback")
+                # Return None, None and let the caller handle the fallback
             print(f"ℹ️ No state found in Redis for user: {user_id}")
             return None, None
         
@@ -57,9 +64,6 @@ def get_redis_user_state(user_id: str, is_app_home: bool, redis_url: str = None)
         print(f"✅ Found Redis state for user {user_id}: provider={provider}, model={model}")
         return provider, model
         
-    except FileNotFoundError as e:
-        # Re-raise FileNotFoundError for expected flow control
-        raise e
     except Exception as e:
         error_msg = f"❌ Error getting Redis state for user {user_id}: {e}"
         print(error_msg, file=sys.stderr)

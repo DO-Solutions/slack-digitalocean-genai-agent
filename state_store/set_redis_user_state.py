@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 from .redis_state_store import RedisStateStore
 from .user_identity import UserIdentity
 
@@ -20,6 +21,13 @@ def set_redis_user_state(user_id: str, provider_name: str, model_name: str, redi
     """
     print(f"💾 Setting Redis state for user {user_id}: provider={provider_name}, model={model_name}")
     
+    # Check if Redis URL is provided or available in environment variables
+    if not redis_url:
+        redis_url = os.environ.get("REDIS_URL")
+        if not redis_url:
+            print(f"ℹ️ REDIS_URL not found in environment, Redis storage disabled")
+            return
+    
     try:
         user = UserIdentity(user_id=user_id, provider=provider_name, model=model_name)
         redis_store = RedisStateStore(redis_url=redis_url)
@@ -29,4 +37,5 @@ def set_redis_user_state(user_id: str, provider_name: str, model_name: str, redi
         error_msg = f"❌ Error storing state in Redis for user {user_id}: {e}"
         print(error_msg, file=sys.stderr)
         logger.error(error_msg)
-        raise ValueError(f"Error storing state in Redis: {e}") 
+        # Don't raise the error, just log it
+        # This allows the application to continue without Redis 
