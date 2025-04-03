@@ -15,5 +15,11 @@ SUMMARIZE_THREAD_PROMPT = """
 Please summarize this thread conversation to highlight the key points and conclusions.
 Keep the summary concise and focused on the important information.
 Don't use user IDs in your response.
+
+Use these Slack-compatible formatting options:
+- For headers, use *Bold Text* instead of # or ## markdown headers
+- For emphasis, use *asterisks* for bold and _underscores_ for italics
+- For bullet points, use plain • or - characters
+- For numbered lists, use 1., 2., etc.
 """
 DEFAULT_LOADING_TEXT = "Adjusting the sails..."

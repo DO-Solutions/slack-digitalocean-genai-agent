@@ -85,28 +85,55 @@ def summary_callback(client: WebClient, ack: Ack, command, say: Say, logger: Log
             title = "Thread Summary"
             
         response = get_provider_response(user_id, prompt, conversation)
+        
+        # Process response to handle formatting issues
+        # Split response into sections if it contains headers
+        sections = []
+        current_section = []
+        
+        for line in response.split('\n'):
+            if line.startswith('##') or line.startswith('# '):
+                # If we have content in current_section, add it to sections
+                if current_section:
+                    sections.append('\n'.join(current_section))
+                    current_section = []
+                # Strip markdown header symbols and make it bold
+                header_text = line.lstrip('#').strip()
+                current_section.append(f"*{header_text}*")
+            else:
+                current_section.append(line)
+        
+        # Add the last section
+        if current_section:
+            sections.append('\n'.join(current_section))
+        
+        # Create blocks for the message
+        blocks = [
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": title
+                }
+            }
+        ]
+        
+        # Add each section as a separate block
+        for section in sections:
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": section
+                }
+            })
 
         # Send response as ephemeral message (only visible to the user)
         client.chat_postEphemeral(
             channel=channel_id,
             user=user_id,
             text=title,
-            blocks=[
-                {
-                    "type": "header",
-                    "text": {
-                        "type": "plain_text",
-                        "text": title
-                    }
-                },
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": response
-                    }
-                }
-            ],
+            blocks=blocks,
         )
     except Exception as e:
         logger.error(e)
