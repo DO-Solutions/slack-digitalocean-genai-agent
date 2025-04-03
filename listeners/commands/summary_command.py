@@ -93,19 +93,18 @@ def summary_callback(client: WebClient, ack: Ack, command, say: Say, logger: Log
             text=title,
             blocks=[
                 {
-                    "type": "rich_text",
-                    "elements": [
-                        {
-                            "type": "rich_text_section",
-                            "elements": [
-                                {"type": "text", "text": f"{title}:"},
-                            ]
-                        },
-                        {
-                            "type": "rich_text_section",
-                            "elements": [{"type": "text", "text": response}],
-                        },
-                    ],
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": title
+                    }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": response
+                    }
                 }
             ],
         )
