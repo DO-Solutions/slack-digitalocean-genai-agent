@@ -47,9 +47,10 @@ def summary_callback(client: WebClient, ack: Ack, command, say: Say, logger: Log
         if len(thread_ts) > 10:
             thread_ts = f"{thread_ts[:10]}.{thread_ts[10:]}"
         
-        # Post a loading message
-        loading_message = client.chat_postMessage(
+        # Post a loading message to the user only
+        client.chat_postEphemeral(
             channel=channel_id,
+            user=user_id,
             text=DEFAULT_LOADING_TEXT
         )
 
@@ -60,9 +61,9 @@ def summary_callback(client: WebClient, ack: Ack, command, say: Say, logger: Log
                 ts=thread_ts
             )["messages"]
         except Exception as e:
-            client.chat_update(
+            client.chat_postEphemeral(
                 channel=channel_id,
-                ts=loading_message["ts"],
+                user=user_id,
                 text=f"Error retrieving thread messages. Make sure Sailor has access to the channel and thread: {str(e)}"
             )
             return
@@ -73,10 +74,10 @@ def summary_callback(client: WebClient, ack: Ack, command, say: Say, logger: Log
         # Get summary from AI provider
         summary = get_provider_response(user_id, SUMMARIZE_THREAD_PROMPT, conversation)
 
-        # Update loading message with summary
-        client.chat_update(
+        # Send summary as ephemeral message (only visible to the user)
+        client.chat_postEphemeral(
             channel=channel_id,
-            ts=loading_message["ts"],
+            user=user_id,
             text="Thread Summary",
             blocks=[
                 {
